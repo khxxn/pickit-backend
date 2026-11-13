@@ -1,0 +1,137 @@
+erDiagram
+    direction LR
+    appUser["users 사용자"] {
+        bigint id PK
+        string nickname
+        string profileImageUrl
+        datetime createdAt
+    }
+    authAccount["auth_accounts 로그인 계정"] {
+        bigint id PK
+        bigint userId FK
+        string provider
+        string providerUserId
+        string email
+        string passwordHash "LOCAL only"
+    }
+    refreshToken["refresh_tokens 로그인 갱신"] {
+        bigint id PK
+        bigint userId FK
+        string tokenHash UK
+        datetime expiresAt
+        datetime revokedAt
+    }
+    category["categories 분류"] {
+        bigint id PK
+        string code UK
+        string name
+    }
+    userInterest["user_interests 관심사"] {
+        bigint userId PK, FK
+        bigint categoryId PK, FK
+    }
+    popup["popups 팝업"] {
+        string placeId PK
+        bigint categoryId FK "Nullable"
+        string name
+        string address
+        string district
+        decimal latitude
+        decimal longitude
+        date popupStartDate
+        date popupEndDate
+        string officialImageUrl
+    }
+    popupPhoto["popup_photos 팝업 사진"] {
+        bigint id PK
+        string placeId FK
+        string url
+        int sortOrder
+    }
+    popupVisit["popup_visits 현장 인증"] {
+        bigint id PK
+        bigint userId FK
+        string placeId FK
+        string status "ACTIVE LEFT EXPIRED"
+        datetime verifiedAt
+        datetime lastConfirmedAt
+        datetime leftAt "Confirmed departure only"
+        datetime expiresAt
+    }
+    exchangePost["exchange_posts 교환글"] {
+        bigint id PK
+        bigint authorId FK
+        string placeId FK "Nullable for general posts"
+        bigint visitId FK "Required for onsite posts"
+        bigint categoryId FK
+        string itemName
+        string wantedItemName
+        string sourceBoard "GENERAL ONSITE"
+        datetime publicAt "Nullable until departure"
+        string tradeStatus "ACTIVE TRADING COMPLETED"
+    }
+    postPhoto["post_photos 교환글 사진"] {
+        bigint id PK
+        bigint postId FK
+        string url
+        int sortOrder
+    }
+    postLike["post_likes 찜"] {
+        bigint userId PK, FK
+        bigint postId PK, FK
+        datetime createdAt
+    }
+    chatRoom["chat_rooms 대화방"] {
+        bigint id PK
+        bigint postId FK
+        bigint requesterId FK
+        datetime createdAt
+    }
+    chatMember["chat_members 대화 참여"] {
+        bigint roomId PK, FK
+        bigint userId PK, FK
+        bigint lastReadMessageId "Nullable cursor"
+    }
+    chatMessage["chat_messages 메시지"] {
+        bigint id PK
+        bigint roomId FK
+        bigint senderId FK "Nullable for SYSTEM"
+        string type "TEXT IMAGE SYSTEM"
+        string content
+        string imageUrl
+        string clientMessageId
+        datetime createdAt
+    }
+    exchange["exchanges 교환 확정과 완료"] {
+        bigint id PK
+        bigint postId FK, UK
+        bigint roomId FK, UK
+        string status "TRADING COMPLETED"
+        datetime confirmedAt
+        datetime completedAt
+    }
+    appUser ||--|{ authAccount : "로그인"
+    appUser ||--o{ refreshToken : "갱신"
+    appUser ||--o{ userInterest : "선택"
+    category ||--o{ userInterest : "관심 분류"
+    category o|--o{ popup : "팝업 분류"
+    popup ||--o{ popupPhoto : "사진"
+    appUser ||--o{ popupVisit : "인증"
+    popup ||--o{ popupVisit : "방문"
+    appUser ||--o{ exchangePost : "작성"
+    category ||--o{ exchangePost : "상품 분류"
+    popup o|--o{ exchangePost : "관련 팝업"
+    popupVisit o|--o{ exchangePost : "현장 작성 근거"
+    exchangePost ||--o{ postPhoto : "사진"
+    appUser ||--o{ postLike : "찜"
+    exchangePost ||--o{ postLike : "받음"
+    exchangePost ||--o{ chatRoom : "대화"
+    appUser ||--o{ chatRoom : "신청"
+    chatRoom ||--|{ chatMember : "참여자 2명"
+    appUser ||--o{ chatMember : "참여"
+    chatRoom ||--o{ chatMessage : "메시지"
+    appUser o|--o{ chatMessage : "발신"
+    exchangePost ||--o| exchange : "교환 결과"
+    chatRoom ||--o| exchange : "확정 대화"
+
+
