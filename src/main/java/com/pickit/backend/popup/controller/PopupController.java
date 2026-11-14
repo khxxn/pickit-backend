@@ -1,6 +1,7 @@
 package com.pickit.backend.popup.controller;
 
 import com.pickit.backend.popup.dto.request.PopupListFilter;
+import com.pickit.backend.popup.dto.response.PopupDetailResponse;
 import com.pickit.backend.popup.dto.response.PopupFilterOptionsResponse;
 import com.pickit.backend.popup.dto.response.PopupListResponse;
 import com.pickit.backend.popup.entity.PopupRegion;
@@ -15,6 +16,7 @@ import java.security.Principal;
 import java.util.Set;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,6 +44,15 @@ public class PopupController {
     ) {
         requireLogin(principal);
         return popupService.getPopups(page, size, new PopupListFilter(q, statuses, regions, categoryIds));
+    }
+
+    @GetMapping("/{popupId}")
+    public PopupDetailResponse getPopupDetail(
+            Principal principal,
+            @PathVariable("popupId") @Positive Long popupId
+    ) {
+        requireLogin(principal);
+        return popupService.getPopupDetail(popupId);
     }
 
     @GetMapping("/filters")

@@ -2,6 +2,7 @@ package com.pickit.backend.popup.service;
 
 import com.pickit.backend.category.repository.CategoryRepository;
 import com.pickit.backend.popup.dto.request.PopupListFilter;
+import com.pickit.backend.popup.dto.response.PopupDetailResponse;
 import com.pickit.backend.popup.dto.response.PopupFilterOptionsResponse;
 import com.pickit.backend.popup.dto.response.PopupListItemResponse;
 import com.pickit.backend.popup.dto.response.PopupListResponse;
@@ -17,8 +18,10 @@ import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @Transactional(readOnly = true)
@@ -68,6 +71,25 @@ public class PopupService {
                 items.getTotalElements(),
                 items.getTotalPages(),
                 items.hasNext()
+        );
+    }
+
+    public PopupDetailResponse getPopupDetail(Long popupId) {
+        Popup popup = popupRepository.findById(popupId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "팝업을 찾을 수 없습니다."));
+
+        return new PopupDetailResponse(
+                popup.getPopupId(),
+                popup.getName(),
+                popup.getThumbnailUrl(),
+                popup.getCategory().getCategoryId(),
+                popup.getCategory().getName(),
+                popup.getDistrict(),
+                popup.getAddress(),
+                popup.getStartDate(),
+                popup.getEndDate(),
+                PopupStatus.fromDates(popup.getStartDate(), popup.getEndDate(), LocalDate.now(SEOUL)),
+                popup.getDescription()
         );
     }
 

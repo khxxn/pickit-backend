@@ -1,6 +1,7 @@
 package com.pickit.backend.popup.dev;
 
 import com.pickit.backend.popup.dto.request.PopupListFilter;
+import com.pickit.backend.popup.dto.response.PopupDetailResponse;
 import com.pickit.backend.popup.dto.response.PopupFilterOptionsResponse;
 import com.pickit.backend.popup.dto.response.PopupListResponse;
 import com.pickit.backend.popup.entity.PopupRegion;
@@ -14,6 +15,7 @@ import jakarta.validation.constraints.Size;
 import java.util.Set;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,6 +44,11 @@ public class PopupListDemoController {
         return popupService.getPopups(
                 page, size, new PopupListFilter(q, statuses, regions, categoryIds), likedPopupIds
         );
+    }
+
+    @GetMapping("/{popupId}")
+    public PopupDetailResponse getPopupDetail(@PathVariable("popupId") @Positive Long popupId) {
+        return popupService.getPopupDetail(popupId);
     }
 
     @GetMapping("/filters")
