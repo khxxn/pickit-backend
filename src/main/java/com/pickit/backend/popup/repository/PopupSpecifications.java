@@ -10,6 +10,7 @@ import jakarta.persistence.criteria.Predicate;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -34,6 +35,14 @@ public final class PopupSpecifications {
                     builder.lessThan(endDate, today)
             );
             List<Predicate> conditions = new ArrayList<>();
+
+            if (!filter.q().isEmpty()) {
+                String keyword = filter.q().toLowerCase(Locale.ROOT)
+                        .replace("!", "!!")
+                        .replace("%", "!%")
+                        .replace("_", "!_");
+                conditions.add(builder.like(builder.lower(root.get("name")), "%" + keyword + "%", '!'));
+            }
 
             if (!filter.statuses().isEmpty()) {
                 List<Predicate> statuses = filter.statuses().stream()

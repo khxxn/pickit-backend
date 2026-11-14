@@ -10,6 +10,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import java.security.Principal;
 import java.util.Set;
 import org.springframework.http.HttpStatus;
@@ -32,6 +33,7 @@ public class PopupController {
     @GetMapping
     public PopupListResponse getPopups(
             Principal principal,
+            @RequestParam(name = "q", required = false) @Size(max = 255) String q,
             @RequestParam(name = "page", defaultValue = "0") @Min(0) int page,
             @RequestParam(name = "size", defaultValue = "20") @Min(1) @Max(100) int size,
             @RequestParam(name = "statuses", required = false) Set<@NotNull PopupStatus> statuses,
@@ -39,7 +41,7 @@ public class PopupController {
             @RequestParam(name = "categoryIds", required = false) Set<@NotNull @Positive Long> categoryIds
     ) {
         requireLogin(principal);
-        return popupService.getPopups(page, size, new PopupListFilter(statuses, regions, categoryIds));
+        return popupService.getPopups(page, size, new PopupListFilter(q, statuses, regions, categoryIds));
     }
 
     @GetMapping("/filters")
