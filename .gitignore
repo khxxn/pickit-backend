@@ -35,3 +35,8 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Local agent instructions ###
+/AGENTS.md
+
+/docs/
