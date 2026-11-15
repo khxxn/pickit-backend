@@ -42,11 +42,7 @@ public class PopupService {
         this.categoryRepository = categoryRepository;
     }
 
-    public PopupListResponse getPopups(int page, int size, PopupListFilter filter) {
-        // 사용자별 팝업 찜 저장 기능이 연결되면 인증된 사용자의 찜 ID 목록을 전달한다.
-        return getPopups(page, size, filter, Set.of());
-    }
-
+    /** likedPopupIds는 회원이 찜한 팝업 ID 목록이며, 찜한 팝업을 먼저 정렬하고 isLiked를 표시한다. */
     public PopupListResponse getPopups(
             int page, int size, PopupListFilter filter, Set<Long> likedPopupIds
     ) {
