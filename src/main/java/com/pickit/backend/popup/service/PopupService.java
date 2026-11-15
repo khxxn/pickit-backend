@@ -1,7 +1,10 @@
 package com.pickit.backend.popup.service;
 
 import com.pickit.backend.category.repository.CategoryRepository;
+import com.pickit.backend.popup.dto.request.NearbyPopupRequest;
 import com.pickit.backend.popup.dto.request.PopupListFilter;
+import com.pickit.backend.popup.dto.response.NearbyPopupItemResponse;
+import com.pickit.backend.popup.dto.response.NearbyPopupResponse;
 import com.pickit.backend.popup.dto.response.PopupDetailResponse;
 import com.pickit.backend.popup.dto.response.PopupFilterOptionsResponse;
 import com.pickit.backend.popup.dto.response.PopupListItemResponse;
@@ -11,9 +14,11 @@ import com.pickit.backend.popup.entity.PopupRegion;
 import com.pickit.backend.popup.entity.PopupStatus;
 import com.pickit.backend.popup.repository.PopupRepository;
 import com.pickit.backend.popup.repository.PopupSpecifications;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -71,6 +76,33 @@ public class PopupService {
                 items.getTotalElements(),
                 items.getTotalPages(),
                 items.hasNext()
+        );
+    }
+
+    public NearbyPopupResponse getNearbyPopups(NearbyPopupRequest request) {
+        LocalDate today = LocalDate.now(SEOUL);
+        // MySQL의 구면 거리 함수는 경도 범위 (-180, 180]을 사용한다.
+        BigDecimal longitude = request.lng().compareTo(BigDecimal.valueOf(-180)) == 0
+                ? BigDecimal.valueOf(180) : request.lng();
+
+        List<NearbyPopupItemResponse> items = popupRepository.findNearbyPopups(
+                request.lat(), longitude, request.radiusMeters()
+        ).stream().map(popup -> new NearbyPopupItemResponse(
+                popup.getPopupId(),
+                popup.getName(),
+                popup.getThumbnailUrl(),
+                popup.getDistrict(),
+                popup.getAddress(),
+                popup.getLatitude(),
+                popup.getLongitude(),
+                popup.getStartDate(),
+                popup.getEndDate(),
+                PopupStatus.fromDates(popup.getStartDate(), popup.getEndDate(), today),
+                popup.getDistanceMeters()
+        )).toList();
+
+        return new NearbyPopupResponse(
+                request.lat(), request.lng(), request.radiusMeters(), items, items.size()
         );
     }
 
