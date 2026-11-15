@@ -1,12 +1,15 @@
 package com.pickit.backend.popup.controller;
 
+import com.pickit.backend.popup.dto.request.NearbyPopupRequest;
 import com.pickit.backend.popup.dto.request.PopupListFilter;
+import com.pickit.backend.popup.dto.response.NearbyPopupResponse;
 import com.pickit.backend.popup.dto.response.PopupDetailResponse;
 import com.pickit.backend.popup.dto.response.PopupFilterOptionsResponse;
 import com.pickit.backend.popup.dto.response.PopupListResponse;
 import com.pickit.backend.popup.entity.PopupRegion;
 import com.pickit.backend.popup.entity.PopupStatus;
 import com.pickit.backend.popup.service.PopupService;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -16,6 +19,7 @@ import java.security.Principal;
 import java.util.Set;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -44,6 +48,15 @@ public class PopupController {
     ) {
         requireLogin(principal);
         return popupService.getPopups(page, size, new PopupListFilter(q, statuses, regions, categoryIds));
+    }
+
+    @GetMapping("/nearby")
+    public NearbyPopupResponse getNearbyPopups(
+            Principal principal,
+            @Valid @ModelAttribute NearbyPopupRequest request
+    ) {
+        requireLogin(principal);
+        return popupService.getNearbyPopups(request);
     }
 
     @GetMapping("/{popupId}")
